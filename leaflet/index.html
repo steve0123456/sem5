@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Simple Leaflet Map</title>
+        <meta name="description" content="Simple Leaflet map example">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 20px 20px;
+            }
+            #map {
+                height: 50%;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="map"></div>
+        
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+        <script>
+             var map = L.map('map').setView([51.505, -0.09], 13);
+
+             // Add a tile layer to the map (OpenStreetMap tiles)
+             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 21,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+             }).addTo(map);
+
+             // Add a marker at a specific location
+             var marker = L.marker([51.505, -0.09]).addTo(map);
+
+             // Wait for the map to fully initialize before disabling dragging
+             map.whenReady(function() {
+                map.dragging.enable();
+                map.touchZoom.enable();
+                map.scrollWheelZoom.enable();
+                map.keyboard.disable();  // Disable default keyboard controls
+    
+    // Add custom keyboard controls for WASD
+             document.addEventListener('keydown', function(event) {
+                    var panOffset = 100;  // Define how much to pan on each key press
+        
+                    switch (event.key) {
+                        case 'w':  // Pan up
+                        map.panBy([0, -panOffset]);
+                        break;
+                        case 's':  // Pan down
+                         map.panBy([0, panOffset]);
+                        break;
+                        case 'a':  // Pan left
+                         map.panBy([-panOffset, 0]);
+                        break;
+                        case 'd':  // Pan right
+                            map.panBy([panOffset, 0]);
+                        break;
+                     }
+                 });
+            });
+
+             // Add a popup to the marker
+             marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+        </script>
+    </body>
+</html>
