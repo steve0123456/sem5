@@ -1,45 +1,63 @@
 // src/Chatbot.js
-import React, { useState } from 'react';
-import {databases} from '../appwrite/Appwrite';
-
-
-
+import React, { useState, useEffect } from 'react';
+import { databases } from '../appwrite/Appwrite'; // Ensure this path is correct
 
 const Chatbot = () => {
     const [message, setMessage] = useState('');
     const [responses, setResponses] = useState([]);
 
+    // Fetch existing messages when the component mounts
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const response = await databases.listDocuments(
+                    '66e82b58001adb25d56b', // Your database ID
+                    '66e82b6200049ed8dd89'  // Your collection ID
+                );
+                setResponses(response.documents);
+            } catch (error) {
+                console.error('Failed to fetch messages', error);
+            }
+        };
+
+        fetchMessages();
+    }, []);
+
     const handleSend = async () => {
-        // Save the message to the database
+        // Save the new message to the database
         try {
-            await databases.createDocument(
-                '66e82b58001adb25d56b', // Replace with your database ID
-                '66e82b6200049ed8dd89', // Replace with your collection ID
-                'unique()', // Document ID
-                { message }
+            const newMessage = await databases.createDocument(
+                '66e82b58001adb25d56b', // Your database ID
+                '66e82b6200049ed8dd89', // Your collection ID
+                'unique()',             // Auto-generate a unique document ID
+                { body: message }       // Store the message in the "body" attribute
             );
 
-            // Fetch responses (assuming you have a logic for response retrieval)
-            // Here you can also include your chatbot logic to get a response
-            const response = await databases.listDocuments(
-                '66e82b58001adb25d56b', // Replace with your database ID
-                '66e82b6200049ed8dd89' // Replace with your collection ID
-            );
-            setResponses(response.documents);
+            // Update the responses state with the new message
+            setResponses([...responses, newMessage]);
         } catch (error) {
             console.error('Failed to send message', error);
         }
-        setMessage('');
+        setMessage(''); // Clear the input field after sending the message
     };
 
     return (
         <div>
             <div>
-                {responses.map((res, index) => (
-                    <div key={index}>{res.message}</div>
+                {/* Loop through responses and display the body of each message */}
+                {responses.map((res) => (
+                    <div key={res.$id}>
+                        <strong>Message:</strong> {res.body ? res.body : 'No message content'} {/* Display message body */}<br></br>
+                        <strong></strong>{res.username ? res.username :'no username'}
+                    </div>
                 ))}
             </div>
-            <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
+            <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type a message..."
+            />
             <button onClick={handleSend}>Send</button>
         </div>
     );
